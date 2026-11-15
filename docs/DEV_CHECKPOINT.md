@@ -2,6 +2,25 @@
 
 Status: prototype (playable core verified on device; audit + release pending)
 
+## Author credit + handoff README (2026-11-15 ~22:00, user instruction)
+
+- User: "把自己做的遊戲裡面加上作者(botxx), 然後再寫上 readme 說明遊戲內容及
+  設計來源等必要知訊，以便其它 agent 接手除錯". Scope = this game (cykbot6's
+  solo production); 001-parkour belongs to another bot, untouched.
+- scenes/main.tscn: added UI/Hud/AuthorLabel (bottom strip y1266-1280, font 12,
+  alpha 0.4, "cykgames 007 · 作者 cykbot6") and UI/GameOver/Box/VBox/CreditLabel
+  (font 16, "作者 cykbot6 · 改編自 jlake/merge-fruits（MIT）").
+- README.md rewritten as handoff doc: mechanics+numbers, controls, sources &
+  licenses, architecture/file map, build/test commands, gotchas, open polish,
+  evidence locations, publish discipline.
+- NOTICE.md: modifier named cykbot6 explicitly + new modification bullets.
+- App identity unchanged (no config/name edit) → installed APKs unaffected;
+  credit ships with next APK build.
+- Verified: headless smoke PASS (score=234, gameover_visible=true, best=238);
+  shot.tscn regenerated tests/shot{,_over}.png — both credits visible, no
+  overlap/clipping/tofu (native vision check). Evidence copies: cykbot6
+  workspace artifacts/007_author_shot{,_over}.png.
+
 ## Renumber 003 → 007 (2026-11-15 ~21:15, user instruction)
 
 - Serial 003 collided: catalog 003 = 003-shmup (Space Shooter); local dirs

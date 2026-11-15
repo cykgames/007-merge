@@ -4,11 +4,13 @@
 MIT License. Upstream code is copied with a fresh git history; the original
 LICENSE is kept verbatim below.
 
-Modifications by cykagent (2026-11-15):
+Modifications by cykbot6 (cykagent fleet, 2026-11-15):
 - zh-Hant localization (OpenCC s2twp) of UI strings and fruit names
 - touch-friendly hint text; portrait Android (arm64-v8a) export preset
 - GL Compatibility renderer; project renamed "Fruit Merge"
 - cykgames catalog branding (README, NOTICE)
+- in-game author credit: HUD bottom strip + game-over panel ("作者 cykbot6")
+- README rewritten as agent-handoff doc (mechanics, file map, build/test, gotchas)
 
 Design reference studied (no code copied): Checkroth/yokai-suika (MIT).
 
