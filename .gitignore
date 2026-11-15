@@ -1,0 +1,13 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# 开发用截图
+/tests/shot*.png
+/tests/shot*.png.import
+
+# 导出产物
+/dist/
+
+build/
+*.apk

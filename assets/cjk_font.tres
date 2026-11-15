@@ -1,0 +1,19 @@
+[gd_resource type="FontVariation" load_steps=3 format=3]
+
+; 项目的默认主题字体（project.godot 的 gui/theme/custom_font 指向这里）。
+;
+; 主字体是内嵌的站酷快乐体，常用汉字全覆盖，所以 Web 导出不依赖系统字体
+; ——浏览器沙箱里拿不到系统字体，之前用 SystemFont 当主字体时全部文字都是豆腐块。
+; SystemFont 降级成 fallback，只在遇到内嵌字体没有的罕见字时接管（仅桌面端有效）。
+
+[ext_resource type="FontFile" uid="uid://bx747i1m8oi2m" path="res://assets/ZCOOLKuaiLe-Regular.ttf" id="1_base"]
+
+[sub_resource type="SystemFont" id="SystemFont_fallback"]
+font_names = PackedStringArray("Microsoft YaHei UI", "Microsoft YaHei", "SimHei", "PingFang SC", "Noto Sans CJK SC", "Sans-Serif")
+antialiasing = 1
+subpixel_positioning = 1
+allow_system_fallback = true
+
+[resource]
+base_font = ExtResource("1_base")
+fallbacks = Array[Font]([SubResource("SystemFont_fallback")])
