@@ -1,6 +1,6 @@
 # Attribution
 
-003-merge is based on **jlake/merge-fruits** (https://github.com/jlake/merge-fruits),
+007-merge is based on **jlake/merge-fruits** (https://github.com/jlake/merge-fruits),
 MIT License. Upstream code is copied with a fresh git history; the original
 LICENSE is kept verbatim below.
 

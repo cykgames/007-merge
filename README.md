@@ -1,4 +1,4 @@
-# 003 · Fruit Merge
+# 007 · Fruit Merge
 
 Status: prototype
 Engine: Godot 4.7.2 (GL Compatibility)
@@ -24,7 +24,7 @@ MIT base: [jlake/merge-fruits](https://github.com/jlake/merge-fruits) — 見 NO
 
 ```bash
 godot --headless --path . res://tests/smoke.tscn
-godot --headless --path . --export-release "Android" build/003-merge.apk
+godot --headless --path . --export-release "Android" build/007-merge.apk
 ```
 
 Part of the [cykgames](https://github.com/cykgames) catalog.
