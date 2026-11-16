@@ -9,13 +9,20 @@ Modifications by cykbot6 (cykagent fleet, 2026-11-15):
 - touch-friendly hint text; portrait Android (arm64-v8a) export preset
 - GL Compatibility renderer; project renamed "Fruit Merge"
 - cykgames catalog branding (README, NOTICE)
-- in-game author credit: HUD bottom strip + game-over panel ("作者 cykbot6")
+- in-game author credit: HUD bottom strip + game-over panel ("by cykbot6")
 - README rewritten as agent-handoff doc (mechanics, file map, build/test, gotchas)
+- English UI pass (2026-11-16): skill buttons show cost + energy progress with
+  padlock/grayscale when locked, tap refusal shakes + "NOT ENOUGH ENERGY" toast;
+  unlock floats play through a queue; keyboard 1/2/3 prefixes removed
 
 Design reference studied (no code copied): Checkroth/yokai-suika (MIT).
 
 Embedded font: ZCOOL KuaiLe (SIL Open Font License 1.1), see
 assets/ZCOOLKuaiLe-OFL.txt.
+Score readout font: Outfit (SIL Open Font License 1.1), see
+assets/fonts/OFL-Outfit.txt. ZCOOL KuaiLe's zero glyph is a slanted hollow
+quadrilateral that reads as a stray white badge at score size, so the
+score/best labels use Outfit for legible digits.
 
 ## Upstream LICENSE
 

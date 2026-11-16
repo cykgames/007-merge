@@ -11,7 +11,7 @@ const ENERGY_MAX := 100.0
 
 enum Skill { HAMMER, SHAKE, RAINBOW }
 
-const SKILL_NAMES: Array[String] = ["錘子", "搖一搖", "彩虹果"]
+const SKILL_NAMES: Array[String] = ["HAMMER", "SHAKE", "RAINBOW"]
 const SKILL_COSTS: Array[float] = [30.0, 45.0, 100.0]
 
 @onready var backdrop: Node2D = $Backdrop
@@ -47,6 +47,11 @@ var _combo_timer := 0.0
 var _danger := 0.0
 var _shake := 0.0
 var _skill_buttons: Array[Button] = []
+var _skill_progress: Array[ProgressBar] = []
+var _skill_locks: Array[Control] = []
+var _shake_tweens: Dictionary = {}
+var _toast: Label
+var _toast_tween: Tween
 var _guide: Node2D
 
 
@@ -57,7 +62,9 @@ func _ready() -> void:
 	_guide.draw.connect(_draw_guide)
 	preview.add_child(_guide)
 
+	Fx.reset_announce()
 	_build_skill_buttons()
+	_build_toast()
 	_style_energy_bar()
 	_style_button(restart_button)
 	restart_button.focus_mode = Control.FOCUS_NONE
@@ -206,7 +213,7 @@ func _do_merge(a: Fruit, b: Fruit) -> void:
 		energy = minf(energy + 30.0, ENERGY_MAX)
 		Fx.burst(effects_root, pos, col, old_radius, 40)
 		Fx.ring(effects_root, pos, Color(1, 1, 1), old_radius * 1.4)
-		Fx.float_text(effects_root, pos, "雙西瓜爆炸！", Color("ff5470"), 40)
+		Fx.float_text(effects_root, pos, "DOUBLE MELON BOOM!", Color("ff5470"), 40)
 		_shake = 22.0
 		Sfx.play_pop()
 	else:
@@ -224,7 +231,7 @@ func _do_merge(a: Fruit, b: Fruit) -> void:
 
 	Fx.float_text(effects_root, pos, "+%d" % gain, Color(1, 1, 1), 32)
 	if combo >= 2:
-		Fx.float_text(effects_root, pos + Vector2(0, -52), "連鎖 x%d" % combo,
+		Fx.float_text(effects_root, pos + Vector2(0, -52), "COMBO x%d" % combo,
 				Color("ffd166"), 30, 70.0)
 		Sfx.play_combo(combo)
 
@@ -241,17 +248,18 @@ func _spawn_fruit(tier: int, pos: Vector2, vel: Vector2) -> void:
 	f.linear_velocity = vel
 
 
-## 合出了某個等級：更新圖鑑，首次解鎖給個儀式感
-func _on_reached(tier: int, pos: Vector2) -> void:
+## Reached a tier: update the codex; first-time unlocks get a ceremony.
+## Announcements go through the Fx queue so they never overlap each other.
+func _on_reached(tier: int, _pos: Vector2) -> void:
 	codex.highlight = tier
 	if SaveData.unlock(tier):
 		codex.unlocked = SaveData.unlocked_tier
 		Sfx.play_unlock()
-		Fx.float_text(effects_root, pos + Vector2(0, -110),
-				"圖鑑解鎖：%s" % FruitDB.name_of(tier), Color("8ef6c0"), 34, 110.0)
+		Fx.announce(effects_root, Vector2(GameLayout.center_x(), 420.0),
+				"UNLOCKED: %s" % FruitDB.name_of(tier), Color("8ef6c0"), 34, 110.0)
 	if tier == FruitDB.MAX_TIER:
-		Fx.float_text(effects_root, Vector2(GameLayout.center_x(), 420.0),
-				"大西瓜誕生！", Color("ffd166"), 56, 130.0)
+		Fx.announce(effects_root, Vector2(GameLayout.center_x(), 420.0),
+				"WATERMELON!", Color("ffd166"), 56, 130.0)
 		_shake = 20.0
 
 
@@ -264,10 +272,16 @@ func _use_skill(skill: int) -> void:
 
 	match skill:
 		Skill.HAMMER:
-			# 錘子先進入待命狀態，真正砸中水果才扣能量
-			hammer_armed = not hammer_armed and energy >= cost
+			# Hammer arms first; energy is only spent when it actually hits.
+			if hammer_armed:
+				hammer_armed = false
+			elif energy >= cost:
+				hammer_armed = true
+			else:
+				_deny_skill(skill)
 		Skill.SHAKE:
 			if energy < cost:
+				_deny_skill(skill)
 				return
 			energy -= cost
 			for child in fruits_root.get_children():
@@ -280,16 +294,17 @@ func _use_skill(skill: int) -> void:
 			_shake = 18.0
 			Sfx.play_pop()
 			Fx.float_text(effects_root, Vector2(GameLayout.center_x(), 700.0),
-					"搖一搖！", Color("9be7ff"), 40)
+					"SHAKE!", Color("9be7ff"), 40)
 		Skill.RAINBOW:
 			if energy < cost:
+				_deny_skill(skill)
 				return
 			energy -= cost
 			current_tier = FruitDB.WILD
 			_apply_current_tier()
 			Sfx.play_unlock()
 			Fx.float_text(effects_root, Vector2(preview.position.x, GameLayout.DROP_Y + 70.0),
-					"彩虹果！可與任意水果合成", Color("ff7fd0"), 28)
+					"RAINBOW! Matches any fruit", Color("ff7fd0"), 28)
 
 	_refresh_ui()
 
@@ -298,6 +313,7 @@ func _swing_hammer(world_pos: Vector2) -> void:
 	var cost := SKILL_COSTS[Skill.HAMMER]
 	if energy < cost:
 		hammer_armed = false
+		_deny_skill(Skill.HAMMER)
 		_refresh_ui()
 		return
 
@@ -355,9 +371,9 @@ func _game_over() -> void:
 	Sfx.play_game_over()
 
 	var is_record := SaveData.submit_score(score)
-	over_title.text = "新紀錄！" if is_record else "遊戲結束"
-	over_score.text = "本局得分  %d" % score
-	over_best.text = "最高分  %d" % SaveData.best_score
+	over_title.text = "NEW RECORD!" if is_record else "GAME OVER"
+	over_score.text = "SCORE  %d" % score
+	over_best.text = "BEST  %d" % SaveData.best_score
 	game_over_panel.visible = true
 	game_over_panel.modulate.a = 0.0
 	var tw := create_tween()
@@ -373,26 +389,34 @@ func _restart() -> void:
 
 func _refresh_ui() -> void:
 	score_label.text = str(score)
-	best_label.text = "最高 %d" % maxi(SaveData.best_score, score)
+	best_label.text = "BEST %d" % maxi(SaveData.best_score, score)
 	energy_bar.value = energy
-	energy_label.text = "能量 %d / %d" % [int(energy), int(ENERGY_MAX)]
+	energy_label.text = "ENERGY %d / %d" % [int(energy), int(ENERGY_MAX)]
 
 	for i in _skill_buttons.size():
 		var b := _skill_buttons[i]
 		var affordable := energy >= SKILL_COSTS[i]
-		b.disabled = not affordable or not _playing
+		# Locked skills stay tappable so a tap can explain the refusal
+		# (shake + toast); only disable for real once the run is over.
+		b.disabled = not _playing
+		var locked := not affordable and _playing
 		if i == Skill.HAMMER and hammer_armed:
-			b.text = "%d  取消" % (i + 1)
+			b.text = "CANCEL"
 			b.modulate = Color("ffd166")
 		else:
-			b.text = "%d %s %d" % [i + 1, SKILL_NAMES[i], int(SKILL_COSTS[i])]
-			b.modulate = Color.WHITE
+			b.text = "%s  %d" % [SKILL_NAMES[i], int(SKILL_COSTS[i])]
+			b.modulate = Color(0.55, 0.55, 0.62) if locked else Color.WHITE
+		_skill_locks[i].visible = locked
+		var pb := _skill_progress[i]
+		pb.value = clampf(energy / SKILL_COSTS[i], 0.0, 1.0) * 100.0
+		var fill := pb.get_theme_stylebox("fill") as StyleBoxFlat
+		fill.bg_color = Color("8ef6c0") if affordable else Color(0.6, 0.6, 0.65)
 
 
 func _update_combo_label() -> void:
 	if combo >= 2 and _combo_timer > 0.0:
 		combo_label.visible = true
-		combo_label.text = "連鎖 x%d" % combo
+		combo_label.text = "COMBO x%d" % combo
 		combo_label.modulate.a = clampf(_combo_timer / COMBO_WINDOW + 0.35, 0.0, 1.0)
 	else:
 		combo_label.visible = false
@@ -409,6 +433,37 @@ func _build_skill_buttons() -> void:
 		_style_button(b)
 		b.pressed.connect(_use_skill.bind(i))
 		b.tooltip_text = _skill_tip(i)
+		# Mini progress bar: current energy relative to this skill's cost.
+		var pb := ProgressBar.new()
+		pb.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		pb.show_percentage = false
+		pb.max_value = 100.0
+		pb.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+		pb.offset_left = 10.0
+		pb.offset_right = -10.0
+		pb.offset_top = -14.0
+		pb.offset_bottom = -7.0
+		var pbg := StyleBoxFlat.new()
+		pbg.bg_color = Color(0, 0, 0, 0.35)
+		pbg.set_corner_radius_all(3)
+		var pfg := StyleBoxFlat.new()
+		pfg.bg_color = Color("8ef6c0")
+		pfg.set_corner_radius_all(3)
+		pb.add_theme_stylebox_override("background", pbg)
+		pb.add_theme_stylebox_override("fill", pfg)
+		b.add_child(pb)
+		_skill_progress.append(pb)
+		# Padlock badge, shown while the skill is unaffordable.
+		var lock := LockBadge.new()
+		lock.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		lock.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+		lock.offset_left = -30.0
+		lock.offset_top = 5.0
+		lock.offset_right = -8.0
+		lock.offset_bottom = 27.0
+		lock.visible = false
+		b.add_child(lock)
+		_skill_locks.append(lock)
 		skill_bar.add_child(b)
 		_skill_buttons.append(b)
 
@@ -416,12 +471,74 @@ func _build_skill_buttons() -> void:
 func _skill_tip(skill: int) -> String:
 	match skill:
 		Skill.HAMMER:
-			return "敲掉任意一個水果（點按鈕後再點水果）"
+			return "Smash any fruit (tap the skill, then tap a fruit)"
 		Skill.SHAKE:
-			return "搖晃整罐水果，製造新的接觸機會"
+			return "Shake the whole jar to create new contacts"
 		Skill.RAINBOW:
-			return "下一個變成彩虹果，可與任意水果合成"
+			return "Next fruit becomes a rainbow, merges with anything"
 	return ""
+
+
+## Loud refusal instead of a silent return: wobble the button + toast.
+func _deny_skill(skill: int) -> void:
+	_shake_button(_skill_buttons[skill])
+	_show_toast("NOT ENOUGH ENERGY")
+
+
+## Container-safe shake: HBox owns position/size, so wobble via rotation.
+func _shake_button(b: Button) -> void:
+	if _shake_tweens.has(b):
+		var old := _shake_tweens[b] as Tween
+		if old != null and old.is_valid():
+			old.kill()
+	b.rotation = 0.0
+	b.pivot_offset = b.size * 0.5
+	var tw := b.create_tween()
+	tw.tween_property(b, "rotation", -0.07, 0.05)
+	tw.tween_property(b, "rotation", 0.07, 0.05)
+	tw.tween_property(b, "rotation", -0.04, 0.05)
+	tw.tween_property(b, "rotation", 0.0, 0.05)
+	_shake_tweens[b] = tw
+
+
+func _build_toast() -> void:
+	_toast = Label.new()
+	_toast.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_toast.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	_toast.offset_top = 1100.0
+	_toast.offset_bottom = 1146.0
+	_toast.add_theme_font_size_override("font_size", 28)
+	_toast.add_theme_color_override("font_color", Color("ff5470"))
+	_toast.add_theme_color_override("font_outline_color", Color(0.08, 0.03, 0.12, 0.9))
+	_toast.add_theme_constant_override("outline_size", 6)
+	_toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_toast.z_index = 70
+	_toast.visible = false
+	$UI/Hud.add_child(_toast)
+
+
+## One reusable toast label: re-triggering restarts it, never stacks.
+func _show_toast(text: String) -> void:
+	_toast.text = text
+	_toast.visible = true
+	_toast.modulate.a = 1.0
+	if _toast_tween != null and _toast_tween.is_valid():
+		_toast_tween.kill()
+	_toast_tween = create_tween()
+	_toast_tween.tween_interval(0.9)
+	_toast_tween.tween_property(_toast, "modulate:a", 0.0, 0.35)
+	_toast_tween.tween_callback(func() -> void: _toast.visible = false)
+
+
+## Small padlock drawn with primitives (no font-glyph dependency).
+class LockBadge extends Control:
+	func _draw() -> void:
+		var w := size.x
+		var h := size.y
+		var c := Color(1, 1, 1, 0.9)
+		draw_arc(Vector2(w * 0.5, h * 0.42), w * 0.24, PI, TAU, 14, c, 2.5, true)
+		draw_rect(Rect2(w * 0.2, h * 0.42, w * 0.6, h * 0.5), c, true)
+		draw_circle(Vector2(w * 0.5, h * 0.64), w * 0.09, Color(0.2, 0.2, 0.25, 1))
 
 
 func _style_button(b: Button) -> void:

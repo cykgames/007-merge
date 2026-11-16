@@ -92,6 +92,55 @@ static func float_text(parent: Node2D, pos: Vector2, text: String, color: Color,
 	tw.tween_callback(l.queue_free)
 
 
+# --- Announcement queue ------------------------------------------------------
+# Big message floats (codex unlocks, watermelon born) play one at a time so
+# simultaneous events never stack on top of each other. Spatial floats
+# (+score, combo) keep using float_text directly.
+
+static var _announce_queue: Array[Dictionary] = []
+static var _announce_busy := false
+static var _announce_gen := 0
+const ANNOUNCE_GAP := 0.65
+
+
+## Queue a message float; it spawns at [param pos] when its turn comes.
+static func announce(parent: Node2D, pos: Vector2, text: String, color: Color,
+		font_size: int = 34, rise: float = 90.0) -> void:
+	_announce_queue.append({
+		"parent": parent, "pos": pos, "text": text, "color": color,
+		"font_size": font_size, "rise": rise,
+	})
+	_pump_announce()
+
+
+## Drop pending announcements (call on scene reload; statics outlive scenes).
+static func reset_announce() -> void:
+	_announce_queue.clear()
+	_announce_busy = false
+	_announce_gen += 1
+
+
+static func _pump_announce() -> void:
+	if _announce_busy:
+		return
+	while not _announce_queue.is_empty():
+		var item: Dictionary = _announce_queue.pop_front()
+		var parent: Node2D = item["parent"]
+		if not is_instance_valid(parent) or not parent.is_inside_tree():
+			continue
+		_announce_busy = true
+		float_text(parent, item["pos"], item["text"], item["color"],
+				item["font_size"], item["rise"])
+		var gen := _announce_gen
+		var t := parent.get_tree().create_timer(ANNOUNCE_GAP)
+		t.timeout.connect(func() -> void:
+			if gen != _announce_gen:
+				return
+			_announce_busy = false
+			_pump_announce())
+		return
+
+
 static func _free_later(node: Node, delay: float) -> void:
 	var t := node.get_tree().create_timer(delay)
 	t.timeout.connect(func() -> void:

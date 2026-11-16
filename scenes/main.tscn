@@ -1,9 +1,10 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/game.gd" id="1_game"]
 [ext_resource type="Script" path="res://scripts/backdrop.gd" id="2_backdrop"]
 [ext_resource type="Script" path="res://scripts/codex.gd" id="3_codex"]
 [ext_resource type="Script" path="res://scripts/fruit_skin.gd" id="4_skin"]
+[ext_resource type="FontFile" path="res://assets/fonts/Outfit.ttf" id="5_outfit"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
 size = Vector2(60, 1300)
@@ -87,10 +88,11 @@ layout_mode = 0
 offset_left = 152.0
 offset_top = 16.0
 offset_right = 452.0
-offset_bottom = 82.0
+offset_bottom = 88.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0.0784314, 0.0313726, 0.117647, 0.7)
 theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("5_outfit")
 theme_override_font_sizes/font_size = 54
 text = "0"
 vertical_alignment = 1
@@ -98,22 +100,23 @@ vertical_alignment = 1
 [node name="BestLabel" type="Label" parent="UI/Hud"]
 layout_mode = 0
 offset_left = 156.0
-offset_top = 82.0
+offset_top = 90.0
 offset_right = 396.0
-offset_bottom = 110.0
+offset_bottom = 118.0
 theme_override_colors/font_color = Color(1, 1, 1, 0.6)
+theme_override_fonts/font = ExtResource("5_outfit")
 theme_override_font_sizes/font_size = 22
-text = "最高 0"
+text = "BEST 0"
 
 [node name="HintLabel" type="Label" parent="UI/Hud"]
 layout_mode = 0
 offset_left = 156.0
-offset_top = 112.0
+offset_top = 120.0
 offset_right = 546.0
-offset_bottom = 138.0
+offset_bottom = 146.0
 theme_override_colors/font_color = Color(1, 1, 1, 0.4)
 theme_override_font_sizes/font_size = 18
-text = "點一下投放 · 按住拖曳瞄準 · 下方按鈕用技能"
+text = "Tap to drop · Drag to aim · Skills below"
 
 [node name="ComboLabel" type="Label" parent="UI/Hud"]
 layout_mode = 0
@@ -125,7 +128,7 @@ theme_override_colors/font_color = Color(1, 0.819608, 0.4, 1)
 theme_override_colors/font_outline_color = Color(0.0784314, 0.0313726, 0.117647, 0.7)
 theme_override_constants/outline_size = 8
 theme_override_font_sizes/font_size = 34
-text = "連鎖 x2"
+text = "COMBO x2"
 horizontal_alignment = 2
 vertical_alignment = 1
 
@@ -146,7 +149,7 @@ offset_right = 138.0
 offset_bottom = 30.0
 theme_override_colors/font_color = Color(1, 1, 1, 0.6)
 theme_override_font_sizes/font_size = 18
-text = "下一個"
+text = "NEXT"
 horizontal_alignment = 1
 
 [node name="NextSkin" type="Node2D" parent="UI/Hud/NextBox"]
@@ -162,7 +165,7 @@ offset_right = 268.0
 offset_bottom = 1182.0
 theme_override_colors/font_color = Color(1, 1, 1, 0.75)
 theme_override_font_sizes/font_size = 17
-text = "能量 0 / 100"
+text = "ENERGY 0 / 100"
 vertical_alignment = 1
 
 [node name="EnergyBar" type="ProgressBar" parent="UI/Hud"]
@@ -193,7 +196,7 @@ offset_right = 692.0
 offset_bottom = 1280.0
 theme_override_colors/font_color = Color(1, 1, 1, 0.4)
 theme_override_font_sizes/font_size = 12
-text = "cykgames 007 · 作者 cykbot6"
+text = "cykgames 007 · by cykbot6"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -244,31 +247,31 @@ alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.819608, 0.4, 1)
 theme_override_font_sizes/font_size = 48
-text = "遊戲結束"
+text = "GAME OVER"
 horizontal_alignment = 1
 
 [node name="ScoreLabel" type="Label" parent="UI/GameOver/Box/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
-text = "本局得分  0"
+text = "SCORE  0"
 horizontal_alignment = 1
 
 [node name="BestLabel" type="Label" parent="UI/GameOver/Box/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 0.7)
 theme_override_font_sizes/font_size = 24
-text = "最高分  0"
+text = "BEST  0"
 horizontal_alignment = 1
 
 [node name="RestartButton" type="Button" parent="UI/GameOver/Box/VBox"]
 custom_minimum_size = Vector2(0, 76)
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
-text = "再來一局"
+text = "PLAY AGAIN"
 
 [node name="CreditLabel" type="Label" parent="UI/GameOver/Box/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 0.55)
 theme_override_font_sizes/font_size = 16
-text = "作者 cykbot6 · 改編自 jlake/merge-fruits（MIT）"
+text = "by cykbot6 · adapted from jlake/merge-fruits (MIT)"
 horizontal_alignment = 1

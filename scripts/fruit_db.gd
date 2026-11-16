@@ -15,17 +15,17 @@ const WILD_RADIUS := 44.0
 const WILD_MERGE_TIER := 4    ## 彩虹果 + 彩虹果 的產物
 
 const FRUITS: Array[Dictionary] = [
-	{"name": "櫻桃",   "radius": 24.0,  "color": Color("e0304a"), "style": Style.PLAIN,   "leaf": true},
-	{"name": "草莓",   "radius": 31.0,  "color": Color("ff566f"), "style": Style.SEEDS,   "leaf": true},
-	{"name": "葡萄",   "radius": 40.0,  "color": Color("9b5de5"), "style": Style.CLUSTER, "leaf": true},
-	{"name": "橘子",   "radius": 49.0,  "color": Color("ff9f1c"), "style": Style.PLAIN,   "leaf": true},
-	{"name": "柿子",   "radius": 59.0,  "color": Color("f4731c"), "style": Style.PLAIN,   "leaf": true},
-	{"name": "蘋果",   "radius": 71.0,  "color": Color("e03b3b"), "style": Style.PLAIN,   "leaf": true},
-	{"name": "梨子",   "radius": 83.0,  "color": Color("d3dd52"), "style": Style.PLAIN,   "leaf": true},
-	{"name": "水蜜桃", "radius": 97.0,  "color": Color("ffa1b5"), "style": Style.CREASE,  "leaf": true},
-	{"name": "鳳梨",   "radius": 113.0, "color": Color("f5c445"), "style": Style.SCALE,   "leaf": true},
-	{"name": "哈密瓜", "radius": 132.0, "color": Color("a9d69b"), "style": Style.NET,     "leaf": false},
-	{"name": "大西瓜", "radius": 154.0, "color": Color("3aa35f"), "style": Style.STRIPE,  "leaf": false},
+	{"name": "Cherry",     "radius": 24.0,  "color": Color("e0304a"), "style": Style.PLAIN,   "leaf": true},
+	{"name": "Strawberry", "radius": 31.0,  "color": Color("ff566f"), "style": Style.SEEDS,   "leaf": true},
+	{"name": "Grape",      "radius": 40.0,  "color": Color("9b5de5"), "style": Style.CLUSTER, "leaf": true},
+	{"name": "Orange",     "radius": 49.0,  "color": Color("ff9f1c"), "style": Style.PLAIN,   "leaf": true},
+	{"name": "Persimmon",  "radius": 59.0,  "color": Color("f4731c"), "style": Style.PLAIN,   "leaf": true},
+	{"name": "Apple",      "radius": 71.0,  "color": Color("e03b3b"), "style": Style.PLAIN,   "leaf": true},
+	{"name": "Pear",       "radius": 83.0,  "color": Color("d3dd52"), "style": Style.PLAIN,   "leaf": true},
+	{"name": "Peach",      "radius": 97.0,  "color": Color("ffa1b5"), "style": Style.CREASE,  "leaf": true},
+	{"name": "Pineapple",  "radius": 113.0, "color": Color("f5c445"), "style": Style.SCALE,   "leaf": true},
+	{"name": "Cantaloupe", "radius": 132.0, "color": Color("a9d69b"), "style": Style.NET,     "leaf": false},
+	{"name": "Watermelon", "radius": 154.0, "color": Color("3aa35f"), "style": Style.STRIPE,  "leaf": false},
 ]
 
 ## 掉落權重：越小的水果越常出現
@@ -46,7 +46,7 @@ static func color_of(tier: int) -> Color:
 
 static func name_of(tier: int) -> String:
 	if tier == WILD:
-		return "彩虹果"
+		return "Rainbow"
 	return FRUITS[tier]["name"]
 
 
